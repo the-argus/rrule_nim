@@ -1,14 +1,10 @@
 import std/times
 import std/options
 
-type number = float
-
-if defined(use_cdouble):
-  type 
-    number = cdouble
+when defined(use_cdouble):
+  type number* = cdouble
 else:
-  type
-    number = float
+  type number* = float
 
 type
   Frequency* = enum
