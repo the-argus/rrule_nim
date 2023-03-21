@@ -1,32 +1,14 @@
 import std/times
 import std/options
+import sugar
 
-when defined(use_cdouble):
-  type number* = cdouble
-else:
-  type number* = float
+import private/r_options
+import private/iter
 
 type
-  Frequency* = enum
-    YEARLY,
-    MONTHLY,
-    WEEKLY,
-    DAILY,
-    HOURLY,
-    MINUTELY,
-    SECONDLY
   RRule* = object
-
-  Options* = object
-    freq: Frequency
-    dtstart: Option[DateTime]
-    interval: number
-    wkst: WeekDay
-    count: Option[number]
-    until: Option[DateTime]
-    tzid: Option[string]
-    bysetpos: Option[seq[number]]
-
+    origOptions*: Options
+    options*: ParsedOptions
 
 proc freqIsDailyOrGreater*(freq: Frequency): bool =
   freq > Frequency.HOURLY
@@ -34,4 +16,7 @@ proc freqIsDailyOrGreater*(freq: Frequency): bool =
 proc initRRule*(): RRule =
   RRule()
 
-
+# TODO: implement this
+proc between*(self: RRule, after: DateTime, before: DateTime, inclusive: bool = false, lambda: Option[(DateTime, number) -> bool] = none((DateTime, number) -> bool)): seq[DateTime] =
+  if lambda.isSome:
+    iter(self.origOptions)
