@@ -1,6 +1,10 @@
 .direnv/
 result
 
+tests/*
+!tests/*.cfg
+!tests/*.nim
+
 nimcache/
 nimblecache/
 htmldocs/
