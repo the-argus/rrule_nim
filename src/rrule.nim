@@ -1,4 +1,5 @@
 import private/r_options
+import private/languages
 
 type
   RRule* = object
@@ -10,3 +11,8 @@ proc freqIsDailyOrGreater*(freq: Frequency): bool =
 
 proc initRRule*(): RRule =
   RRule(origOptions: defaultOptions)
+
+export Options
+export r_options.fromText
+export languages.Language
+export languages.English

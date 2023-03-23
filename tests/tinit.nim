@@ -2,6 +2,10 @@ echo ">>> BEGINNING TINIT TEST"
 
 import rrule
 
-let myopts = rrule.Options()
+let
+  basicopts = rrule.Options()
+  parsedOpts = rrule.Options.fromText("test")
 
-echo $rrule.number
+  lang = rrule.Language.English
+
+echo lang
