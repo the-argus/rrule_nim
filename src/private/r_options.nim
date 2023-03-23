@@ -1,5 +1,6 @@
 import std/options
 import std/times
+import parser
 
 when defined(use_cdouble):
   type number* = cdouble
@@ -76,10 +77,13 @@ let
   )
 
 
-proc fromText*(staticType: typedesc[Options], text: string) =
+proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   let
     options = defaultOptions
-    ttr = Parser()
+    ttr = initParser()
+
+  if not ttr.start(text):
+    return none(Options)
 
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
