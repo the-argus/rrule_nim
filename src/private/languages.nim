@@ -77,5 +77,7 @@ let english: Language = Language(
   }.toTable
 )
 
+proc tokens*(lang: Language): Table[string, Regex] =
+  return lang.tokens
 proc English*(staticType: typedesc[Language]): Language =
   result = english

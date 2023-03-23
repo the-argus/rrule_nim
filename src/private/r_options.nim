@@ -1,6 +1,7 @@
 import std/options
 import std/times
 import parser
+import languages
 
 when defined(use_cdouble):
   type number* = cdouble
@@ -67,7 +68,7 @@ let
     bymonthday: none(seq[number]),
     bynmonthday: none(seq[number]),
     byyearday: none(seq[number]),
-    byweekno: none(seq[seq[number]]),
+    byweekno: none(seq[number]),
     byweekday: none(seq[WeekDay]),
     bynweekday: none(seq[seq[number]]),
     byhour: none(seq[number]),
@@ -80,7 +81,7 @@ let
 proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   let
     options = defaultOptions
-    ttr = initParser()
+    ttr: Parser = initParser(rules: Language.English.tokens)
 
   if not ttr.start(text):
     return none(Options)

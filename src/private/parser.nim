@@ -32,16 +32,16 @@ proc first(rm: RegexMatch, text: string): string =
 
 
 
-proc initParser*(rules: Table[string, Regex]): Parser =
+proc initParser(rules: Table[string, Regex]): Parser =
   # parser that is done by default
   return Parser(rules: rules, done: true)
 
-proc start*(self: var Parser, text: string): bool =
+proc start(self: var Parser, text: string): bool =
   self.text = text
   self.done = false
   return self.nextSymbol
 
-proc nextSymbol*(self: var Parser): bool =
+proc nextSymbol(self: var Parser): bool =
   var
     best: Option[RegexMatch] = none(RegexMatch)
     bestSymbol: Option[string] = none(string)
