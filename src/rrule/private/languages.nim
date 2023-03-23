@@ -7,7 +7,7 @@ type
     monthNames: seq[string]
     tokens: Table[string, Regex]
 
-let english: Language = Language(
+let englishLanguage: Language = Language(
   dayNames: @[
     "Sunday",
     "Monday",
@@ -79,5 +79,5 @@ let english: Language = Language(
 
 proc tokens*(lang: Language): Table[string, Regex] =
   return lang.tokens
-proc English*(staticType: typedesc[Language]): Language =
-  result = english
+proc english*(staticType: typedesc[Language]): Language =
+  result = englishLanguage

@@ -1,5 +1,5 @@
-import private/r_options
-import private/languages
+import rrule/private/r_options
+import rrule/private/languages
 
 type
   RRule* = object
@@ -15,4 +15,4 @@ proc initRRule*(): RRule =
 export Options
 export r_options.fromText
 export languages.Language
-export languages.English
+export languages.english
