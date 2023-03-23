@@ -79,9 +79,8 @@ let
 
 
 proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
-  let
-    options = defaultOptions
-    ttr: Parser = initParser(rules: Language.English.tokens)
+  let options = defaultOptions
+  var ttr: Parser = initParser(rules=Language.english.tokens)
 
   if not ttr.start(text):
     return none(Options)
