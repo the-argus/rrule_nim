@@ -14,9 +14,12 @@ proc freqIsDailyOrGreater*(freq: Frequency): bool =
   freq > Frequency.HOURLY
 
 proc initRRule*(): RRule =
-  RRule()
+  RRule(origOptions: defaultOptions)
 
 # TODO: implement this
-proc between*(self: RRule, after: DateTime, before: DateTime, inclusive: bool = false, lambda: Option[(DateTime, number) -> bool] = none((DateTime, number) -> bool)): seq[DateTime] =
+proc between*(
+  self: RRule, after: DateTime, before: DateTime, inclusive: bool = false,
+  lambda: Option[(DateTime, number) -> bool] = none((DateTime, number) -> bool)
+  ): seq[DateTime] =
   if lambda.isSome:
     iter(self.origOptions)
