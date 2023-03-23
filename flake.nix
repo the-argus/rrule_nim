@@ -1,6 +1,6 @@
 {
   description = "Nix packaging for rrule_nim";
-  inputs.nixpkgs.url = github:nixos/nixpkgs?ref=nixos-unstable;
+  inputs.nixpkgs.url = github:nixos/nixpkgs?ref=nixos-22.11;
 
   outputs = {
     self,
