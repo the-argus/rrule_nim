@@ -24,6 +24,13 @@ proc start*(self: var Parser, text: string): bool
 # false if not.
 proc nextSymbol*(self: var Parser): bool
 
+# check if the current symbol is equal to param name.
+# if it is, perform nextSymbol.
+# return bool: whether or not value is null
+proc accept(self: var Parser, name: string): bool
+
+# accept, but throw an error if false
+proc expect*(self: var Parser, name: string): bool
 
 
 # helper
@@ -35,6 +42,24 @@ proc first(rm: RegexMatch, text: string): string =
 proc initParser(rules: Table[string, Regex]): Parser =
   # parser that is done by default
   return Parser(rules: rules, done: true)
+
+proc accept(self: var Parser, name: string): bool =
+  if self.symbol.get("") == name:
+    if self.value.isSome:
+      let v = self.value.isSome
+      discard self.nextSymbol()
+      return v
+
+    discard self.nextSymbol()
+    return true
+
+  return false
+
+proc expect(self: var Parser, name: string): bool =
+  if self.accept(name):
+    return true
+
+  raise newException(ValueError, "expected " & name & " but found " & self.symbol.get("NO SYMBOL FOUND"))
 
 proc start(self: var Parser, text: string): bool =
   self.text = text

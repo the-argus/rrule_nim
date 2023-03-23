@@ -85,6 +85,8 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   if not ttr.start(text):
     return none(Options)
 
+  ttr.expect("every")
+
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
 proc freq*(opt: ParsedOptions): Frequency = opt.freq
