@@ -75,6 +75,12 @@ let
     byeaster: none(number)
   )
 
+
+proc fromText*(staticType: typedesc[Options], text: string) =
+  let
+    options = defaultOptions
+    ttr = Parser()
+
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
 proc freq*(opt: ParsedOptions): Frequency = opt.freq

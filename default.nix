@@ -7,7 +7,7 @@
     "--threads:on"
   ];
 in
-  nimPackages.buildNimPackage {
+  nimPackages.buildNimPackage rec {
     pname = "rrule_nim";
     version = "0.0.1";
     src = ./.;
@@ -17,4 +17,5 @@ in
     inherit nimRelease nimFlags;
 
     propagatedBuildInputs = with nimPackages; [regex];
+    buildInputs = propagatedBuildInputs;
   }
