@@ -6,7 +6,7 @@ import r_options
 
 type
   QueryMethod* = enum
-    between, before, after
+    between, before, after, all
 
   IterArgs* = object
     # could include an option for being inclusive or not...
@@ -87,5 +87,32 @@ proc accept(self: var IterResult, date: DateTime): bool =
   self.add(date)
   return true
 
-proc iter*(options: Options) =
-  discard
+proc getValue(self: IterResult): Option[seq[DateTime]] =
+    let res = self.contents
+    
+    # deal with edge case of no result
+    if (res.len == 0):
+      return none(seq[DateTime])
+
+    # the area of the contents being selected for return. default last item
+    var slice = (res.len-1)..(res.len-1)
+    
+    # between and all are exceptions
+    if self.methodType == between or self.methodType == all:
+        # return all items in contents
+        slice = 0..(res.len-1)
+
+    result = some(res[slice])
+
+proc iter*(iterResult: var IterResult, options: ParsedOptions): Option[seq[DateTime]]=
+  let
+    count: number = options.count.get(0)
+    dtstart: DateTime = options.dtstart
+    freq: Frequency = options.freq
+    interval: number = options.interval
+    until: DateTime = options.until.get(DateTime.default)
+    bysetpos: seq[number] = options.bysetpos
+
+
+  if count == 0 or interval == 0:
+    return iterResult.getValue()

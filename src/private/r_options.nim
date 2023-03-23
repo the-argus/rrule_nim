@@ -74,3 +74,11 @@ let
     bysecond: none(seq[number]),
     byeaster: none(number)
   )
+
+# expose some fields read-only
+proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
+proc freq*(opt: ParsedOptions): Frequency = opt.freq
+proc interval*(opt: ParsedOptions): number = opt.interval
+proc until*(opt: ParsedOptions): Option[DateTime] = opt.until
+proc bysetpos*(opt: ParsedOptions): seq[number] = opt.bysetpos
+proc count*(opt: ParsedOptions): Option[number] = opt.count
