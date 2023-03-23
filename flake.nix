@@ -20,5 +20,13 @@
       rrule_nim = pkgs.${system}.callPackage ./. {};
       default = self.packages.${system}.rrule_nim;
     });
+
+    devShell = genSystems (system:
+      pkgs.${system}.mkShell {
+        packages = with pkgs.${system}; [
+          nimlsp
+          nim
+        ];
+      });
   };
 }
