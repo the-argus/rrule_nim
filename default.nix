@@ -15,4 +15,6 @@ in
     nimBinOnly = false;
     nimbleFile = ./rrule.nimble;
     inherit nimRelease nimFlags;
+
+    propagatedBuildInputs = with nimPackages; [regex];
   }
