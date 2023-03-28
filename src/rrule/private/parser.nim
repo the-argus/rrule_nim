@@ -30,7 +30,7 @@ proc nextSymbol*(self: var Parser): bool
 proc accept(self: var Parser, name: string): bool
 
 # accept, but throw an error if false
-proc expect*(self: var Parser, name: string): bool
+proc expect*(self: var Parser, name: string)
 
 
 # helper
@@ -55,11 +55,9 @@ proc accept(self: var Parser, name: string): bool =
 
   return false
 
-proc expect(self: var Parser, name: string): bool =
-  if self.accept(name):
-    return true
-
-  raise newException(ValueError, "expected " & name & " but found " & self.symbol.get("NO SYMBOL FOUND"))
+proc expect(self: var Parser, name: string) =
+  if not self.accept(name):
+    raise newException(ValueError, "expected " & name & " but found " & self.symbol.get("NO SYMBOL FOUND"))
 
 proc start(self: var Parser, text: string): bool =
   self.text = text
