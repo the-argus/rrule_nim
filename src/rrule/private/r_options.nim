@@ -102,11 +102,45 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   case symbol.get("NONE_SYMBOL"):
     of "day(s)":
       options.freq = Frequency.DAILY
+      if (ttr.nextSymbol()):
+        AT()
+        F()
       break
     of "weekday(s)":
       break
+    of "week(s)":
+      break
+    of "hour(s)":
+      break
+    of "minute(s)":
+      break
+    of "month(s)":
+      break
+    of "year(s)":
+      break
+    of "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday":
+      break
+
+    of "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december":
+      break
+
+    else:
+      raise newException(Exception, "Unknown symbol")
 
   return options
+
+proc AT(ttr: var Parser, options: var Options) =
+  let
+    at = ttr.accept("at")
+    matchBefore = ttr.valueFirstMatch
+  if not at:
+    return
+
+  while true:
+    let num = ttr.acceptNumber()
+    if not num:
+      raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected hour.")
+    options.byhour = some(@[parseInt(matchBefore.get("")).number])
 
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart

@@ -27,7 +27,7 @@ proc nextSymbol*(self: var Parser): bool
 # check if the current symbol is equal to param name.
 # if it is, perform nextSymbol.
 # return bool: whether or not value is null
-proc accept(self: var Parser, name: string): bool
+proc accept*(self: var Parser, name: string): bool
 
 # accept but it always uses the number regex
 proc acceptNumber*(self: var Parser): bool
@@ -40,10 +40,13 @@ proc expect*(self: var Parser, name: string)
 proc valueFirstMatch*(self: var Parser): Option[string]
 
 proc isDone*(self: var Parser): bool =
-  return self.done
+  result = self.done
 
 proc symbol*(self: var Parser): Option[string] =
-  return self.symbol
+  result = self.symbol
+
+proc someSymbol*(self: var Parser): string =
+  result = self.symbol.get("no_symbol")
 
 # helper
 proc first(rm: RegexMatch, text: string): string =
