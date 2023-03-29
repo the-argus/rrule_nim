@@ -29,15 +29,25 @@ proc nextSymbol*(self: var Parser): bool
 # return bool: whether or not value is null
 proc accept(self: var Parser, name: string): bool
 
+# accept but it always uses the number regex
+proc acceptNumber*(self: var Parser): bool
+
 # accept, but throw an error if false
 proc expect*(self: var Parser, name: string)
 
+# retrieve the first match of the value regex match,
+# if it exists
+proc valueFirstMatch*(self: var Parser): Option[string]
 
 # helper
 proc first(rm: RegexMatch, text: string): string =
   return rm.groupFirstCapture(0, text)
 
-
+proc valueFirstMatch(self: var Parser): Option[string] =
+  if self.value.isSome:
+    return first(self.value.get(), self.text).some
+  else:
+    return string.none
 
 proc initParser(rules: Table[string, Regex]): Parser =
   # parser that is done by default
@@ -54,6 +64,9 @@ proc accept(self: var Parser, name: string): bool =
     return true
 
   return false
+
+proc acceptNumber*(self: var Parser): bool =
+  return self.accept("number")
 
 proc expect(self: var Parser, name: string) =
   if not self.accept(name):

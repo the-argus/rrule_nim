@@ -1,5 +1,6 @@
 import std/options
 import std/times
+import std/strutils
 import parser
 import languages
 
@@ -86,6 +87,15 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
     return none(Options)
 
   ttr.expect("every")
+
+  let
+    matchBefore = ttr.valueFirstMatch
+    n = ttr.acceptNumber();
+
+  if n:
+    options.interval = parseInt(matchBefore)
+
+  return options
 
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
