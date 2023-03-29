@@ -90,10 +90,21 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
 
   let
     matchBefore = ttr.valueFirstMatch
-    n = ttr.acceptNumber();
+    n = ttr.acceptNumber()
+    symbol = ttr.symbol
 
   if n:
     options.interval = parseInt(matchBefore)
+  if ttr.isDone:
+    raise newException(Exception, "Unexpected end")
+
+  # different changes to make to options based on the current symbol
+  case symbol.get("NONE_SYMBOL"):
+    of "day(s)":
+      options.freq = Frequency.DAILY
+      break
+    of "weekday(s)":
+      break
 
   return options
 

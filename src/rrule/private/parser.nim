@@ -39,6 +39,12 @@ proc expect*(self: var Parser, name: string)
 # if it exists
 proc valueFirstMatch*(self: var Parser): Option[string]
 
+proc isDone*(self: var Parser): bool =
+  return self.done
+
+proc symbol*(self: var Parser): Option[string] =
+  return self.symbol
+
 # helper
 proc first(rm: RegexMatch, text: string): string =
   return rm.groupFirstCapture(0, text)
