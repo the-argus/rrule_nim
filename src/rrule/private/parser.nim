@@ -2,6 +2,9 @@ import std/tables
 import std/options
 import regex
 
+const
+  fallbackParserValue = ""
+  fallbackParserSymbol = "no_symbol"
 
 type
   Parser* = object
@@ -37,7 +40,10 @@ proc expect*(self: var Parser, name: string)
 
 # retrieve the first match of the value regex match,
 # if it exists
-proc valueFirstMatch*(self: var Parser): Option[string]
+proc valueFirstMatch*(self: Parser): Option[string]
+
+# same as valueFirstMatch but returns a default string if none is found
+proc someValueFirstMatch*(self: Parser): string
 
 proc isDone*(self: var Parser): bool =
   result = self.done
@@ -46,7 +52,7 @@ proc symbol*(self: var Parser): Option[string] =
   result = self.symbol
 
 proc someSymbol*(self: var Parser): string =
-  result = self.symbol.get("no_symbol")
+  result = self.symbol.get(fallbackParserSymbol)
 
 proc text*(self: var Parser): string =
   return self.text
@@ -55,11 +61,14 @@ proc text*(self: var Parser): string =
 proc first(rm: RegexMatch, text: string): string =
   return rm.groupFirstCapture(0, text)
 
-proc valueFirstMatch(self: var Parser): Option[string] =
+proc valueFirstMatch(self: Parser): Option[string] =
   if self.value.isSome:
     return first(self.value.get(), self.text).some
   else:
     return string.none
+
+proc someValueFirstMatch*(self: Parser): string =
+  return valueFirstMatch(self).get(fallbackParserValue)
 
 proc initParser(rules: Table[string, Regex]): Parser =
   # parser that is done by default

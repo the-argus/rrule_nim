@@ -83,8 +83,9 @@ proc at(ttr: var Parser, options: var Options)
 proc f(ttr: var Parser, options: var Options)
 
 proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
-  let options = defaultOptions
-  var ttr: Parser = initParser(rules=Language.english.tokens)
+  var
+    ttr: Parser = initParser(rules=Language.english.tokens)
+    options = defaultOptions
 
   if not ttr.start(text):
     return none(Options)
@@ -92,11 +93,11 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   ttr.expect("every")
 
   let
-    matchBefore = ttr.valueFirstMatch
+    matchBefore = ttr.someValueFirstMatch
     n = ttr.acceptNumber()
 
   if n:
-    options.interval = parseInt(matchBefore)
+    options.interval = number(parseInt(matchBefore))
   if ttr.isDone:
     raise newException(Exception, "Unexpected end")
 
@@ -107,29 +108,28 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
       if ttr.nextSymbol():
         at(ttr, options)
         f(ttr, options)
-      break
     of "weekday(s)":
-      break
+      discard
     of "week(s)":
-      break
+      discard
     of "hour(s)":
-      break
+      discard
     of "minute(s)":
-      break
+      discard
     of "month(s)":
-      break
+      discard
     of "year(s)":
-      break
+      discard
     of "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday":
-      break
+      discard
 
     of "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december":
-      break
+      discard
 
     else:
       raise newException(Exception, "Unknown symbol")
 
-  return options
+  return options.some
 
 proc at(ttr: var Parser, options: var Options) =
   let
