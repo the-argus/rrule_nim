@@ -134,7 +134,7 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
 proc at(ttr: var Parser, options: var Options) =
   let
     at = ttr.accept("at")
-    matchBefore = ttr.valueFirstMatch
+    matchBefore = ttr.someValueFirstMatch
   if not at:
     return
 
@@ -142,7 +142,7 @@ proc at(ttr: var Parser, options: var Options) =
     var num = ttr.acceptNumber()
     if not num:
       raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected hour.")
-    options.byhour = some(@[parseInt(matchBefore.get("")).number])
+    options.byhour = some(@[parseInt(matchBefore).number])
 
     while ttr.accept("comma"):
       num = ttr.acceptNumber()
@@ -150,7 +150,7 @@ proc at(ttr: var Parser, options: var Options) =
         raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected hour.")
       # unsafe get, but we can only reach this point in the code if we've just
       # set options.byhour to an actual seq
-      options.byhour.get().add(parseInt(matchBefore.get("")).number)
+      options.byhour.get().add(parseInt(matchBefore).number)
 
     let separatorSymbolIsNext = ttr.accept("comma") or ttr.accept("at")
 
@@ -159,7 +159,16 @@ proc at(ttr: var Parser, options: var Options) =
 
 proc f(ttr: var Parser, options: var Options) =
   if ttr.someSymbol == "until":
-    let date = toDateTime(ttr.text)
+    var date: DateTime
+    try:
+      date = toDateTime(ttr.text)
+    except:
+      raise newException(Exception, "Cannot parse \"until\" date: " & ttr.text)
+
+    options.until = date.some
+  elif ttr.accept("for"):
+    options.count = parseInt(ttr.someValueFirstMatch).number.some
+    ttr.expect("number")
 
 
 # expose some fields read-only
