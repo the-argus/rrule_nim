@@ -48,6 +48,9 @@ proc symbol*(self: var Parser): Option[string] =
 proc someSymbol*(self: var Parser): string =
   result = self.symbol.get("no_symbol")
 
+proc text*(self: var Parser): string =
+  return self.text
+
 # helper
 proc first(rm: RegexMatch, text: string): string =
   return rm.groupFirstCapture(0, text)

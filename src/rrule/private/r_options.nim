@@ -3,6 +3,7 @@ import std/times
 import std/strutils
 import parser
 import languages
+import datetime_parse_implementation
 
 when defined(use_cdouble):
   type number* = cdouble
@@ -78,6 +79,8 @@ let
     byeaster: none(number)
   )
 
+proc at(ttr: var Parser, options: var Options)
+proc f(ttr: var Parser, options: var Options)
 
 proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   let options = defaultOptions
@@ -91,7 +94,6 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   let
     matchBefore = ttr.valueFirstMatch
     n = ttr.acceptNumber()
-    symbol = ttr.symbol
 
   if n:
     options.interval = parseInt(matchBefore)
@@ -99,12 +101,12 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
     raise newException(Exception, "Unexpected end")
 
   # different changes to make to options based on the current symbol
-  case symbol.get("NONE_SYMBOL"):
+  case ttr.someSymbol:
     of "day(s)":
       options.freq = Frequency.DAILY
-      if (ttr.nextSymbol()):
-        AT()
-        F()
+      if ttr.nextSymbol():
+        at(ttr, options)
+        f(ttr, options)
       break
     of "weekday(s)":
       break
@@ -129,7 +131,7 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
 
   return options
 
-proc AT(ttr: var Parser, options: var Options) =
+proc at(ttr: var Parser, options: var Options) =
   let
     at = ttr.accept("at")
     matchBefore = ttr.valueFirstMatch
@@ -137,10 +139,28 @@ proc AT(ttr: var Parser, options: var Options) =
     return
 
   while true:
-    let num = ttr.acceptNumber()
+    var num = ttr.acceptNumber()
     if not num:
       raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected hour.")
     options.byhour = some(@[parseInt(matchBefore.get("")).number])
+
+    while ttr.accept("comma"):
+      num = ttr.acceptNumber()
+      if not num:
+        raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected hour.")
+      # unsafe get, but we can only reach this point in the code if we've just
+      # set options.byhour to an actual seq
+      options.byhour.get().add(parseInt(matchBefore.get("")).number)
+
+    let separatorSymbolIsNext = ttr.accept("comma") or ttr.accept("at")
+
+    if not separatorSymbolIsNext:
+      break
+
+proc f(ttr: var Parser, options: var Options) =
+  if ttr.someSymbol == "until":
+    let date = toDateTime(ttr.text)
+
 
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
