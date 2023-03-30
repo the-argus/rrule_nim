@@ -79,12 +79,14 @@ let
     byeaster: none(number)
   )
 
+# helper functions for parsing different symbols
 proc at(ttr: var Parser, options: var Options)
 proc f(ttr: var Parser, options: var Options)
 proc on(ttr: var Parser, options: var Options)
 proc decodeM(ttr: var Parser): Option[number]
 proc decodeNTH(ttr: var Parser): Option[number]
 proc decodeWKD(ttr: var Parser): Option[string]
+proc toWeekDay(wkd: string): WeekDay
 
 proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
   var
@@ -123,18 +125,71 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
         on(ttr, options)
         f(ttr, options)
     of "hour(s)":
-      discard
+      options.freq = HOURLY
+      if ttr.nextSymbol():
+        on(ttr, options)
+        f(ttr, options)
     of "minute(s)":
-      discard
+      options.freq = MINUTELY
+      if ttr.nextSymbol():
+        on(ttr, options)
+        f(ttr, options)
     of "month(s)":
-      discard
+      options.freq = MONTHLY
+      if ttr.nextSymbol():
+        on(ttr, options)
+        f(ttr, options)
     of "year(s)":
-      discard
+      options.freq = YEARLY
+      if ttr.nextSymbol():
+        on(ttr, options)
+        f(ttr, options)
     of "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday":
-      discard
+      options.freq = WEEKLY
+      let key = ttr.someSymbol[0..2].toUpper
+      options.byweekday = @[key.toWeekDay].some
+
+      if not ttr.nextSymbol():
+        return
+
+      while ttr.accept("comma"):
+        if ttr.isDone:
+          raise newException(Exception, "Unexpected end")
+
+        let wkd = decodeWKD(ttr)
+
+        if wkd.isNone:
+          raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected weekday")
+
+        var initial = options.byweekday.get()
+        initial.add(wkd.get.toWeekDay)
+
+        discard ttr.nextSymbol()
+
+      mDays()
+      f(ttr, options)
 
     of "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december":
-      discard
+      options.freq = YEARLY
+      options.bymonth = @[ttr.decodeM].some
+
+      if not ttr.nextSymbol():
+        return
+
+      while ttr.accept("comma"):
+        if ttr.isDone:
+          raise newException(Exception, "Unexpected end")
+
+        let m = ttr.decodeM
+
+        if m.isNone:
+          raise newException(Exception, "Unexpected symbol " & ttr.someSymbol & ", expected month")
+
+        options.bymonth.get.add(m.get)
+        discard ttr.nextSymbol()
+
+      on(ttr, options)
+      f(ttr, options)
 
     else:
       raise newException(Exception, "Unknown symbol")
@@ -201,7 +256,8 @@ proc on(ttr: var Parser, options: var Options) =
         if options.byweekday.isNone:
           options.byweekday = some(seq[WeekDay](@[]))
         var initial = options.byweekday.get()
-        initial.add()
+        initial.add(wkd.get.toWeekDay)
+        options.byweekday = initial.some
       else:
         if options.bymonthday.isNone:
           options.bymonthday = some(seq[number](@[]))
@@ -214,7 +270,7 @@ proc on(ttr: var Parser, options: var Options) =
       if options.byweekday.isNone:
         options.byweekday = some(seq[WeekDay](@[]))
       var initial = options.byweekday.get()
-      initial.add()
+      initial.add(wkd.get.toWeekDay)
       options.byweekday = initial.some
     elif ttr.someSymbol == "weekday(s)":
       discard ttr.nextSymbol()
@@ -283,7 +339,7 @@ proc decodeWKD(ttr: var Parser): Option[string] =
   const days: array[7, string] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 
   if sym in days:
-    return sym[0..2].toUpperAscii.some
+    return sym[0..2].toUpper.some
   else:
     return string.none
 
@@ -322,6 +378,25 @@ proc decodeNTH(ttr: var Parser): Option[number] =
         result = v.number.some
     else:
       result = number.none
+
+proc toWeekDay(wkd: string): WeekDay =
+  case wkd:
+    of "MON":
+      result = dMon
+    of "TUE":
+      result = dTue
+    of "WED":
+      result = dWed
+    of "THU":
+      result = dThu
+    of "FRI":
+      result = dFri
+    of "SAT":
+      result = dSat
+    of "SUN":
+      result = dSun
+    else:
+      raise newException(Exception, "Unknown weekday " & wkd)
 
 # expose some fields read-only
 proc dtstart*(opt: ParsedOptions): DateTime = opt.dtstart
