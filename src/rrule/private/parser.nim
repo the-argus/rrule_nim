@@ -58,12 +58,15 @@ proc text*(self: var Parser): string =
   return self.text
 
 # helper
-proc first(rm: RegexMatch, text: string): string =
-  return rm.groupFirstCapture(0, text)
+proc first(rm: RegexMatch, text: string): Option[string] =
+  if rm.groupsCount >= 1:
+    result = rm.groupFirstCapture(0, text).some
+  else:
+    result = string.none
 
 proc valueFirstMatch(self: Parser): Option[string] =
   if self.value.isSome:
-    return first(self.value.get(), self.text).some
+    return first(self.value.get(), self.text)
   else:
     return string.none
 
@@ -120,7 +123,7 @@ proc nextSymbol(self: var Parser): bool =
 
       if matched:
         # reducing match to the first primary capture, for length comparison
-        if best.isNone or match.first(self.text).len > best.get(RegexMatch()).first(self.text).len:
+        if best.isNone or match.first(self.text).get("").len > best.get(RegexMatch()).first(self.text).get("").len:
           # great, better match found
           best = some(match)
           bestSymbol = some(name)
@@ -128,7 +131,7 @@ proc nextSymbol(self: var Parser): bool =
     # put the results of the search into self
     if best.isSome:
       # cut off to end of match
-      self.text = self.text[best.get(RegexMatch()).first(self.text).len..(self.text.len-1)]
+      self.text = self.text[best.get(RegexMatch()).first(self.text).get("").len..(self.text.len-1)]
       self.done = self.text.len == 0
     else:
       # no best found
