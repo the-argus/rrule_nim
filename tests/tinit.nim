@@ -7,5 +7,3 @@ let
   parsedOpts = rrule.Options.fromText("test")
 
   lang = rrule.Language.english
-
-echo lang
