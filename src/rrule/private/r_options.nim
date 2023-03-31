@@ -193,7 +193,7 @@ proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
       f(ttr, options)
 
     else:
-      raise newException(Exception, "Unknown symbol")
+      raise newException(Exception, "Unknown symbol " & ttr.someSymbol)
 
   return options.some
 

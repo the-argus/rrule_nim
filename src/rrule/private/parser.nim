@@ -78,7 +78,7 @@ proc initParser(rules: Table[string, Regex]): Parser =
   return Parser(rules: rules, done: true)
 
 proc accept(self: var Parser, name: string): bool =
-  if self.symbol.get("") == name:
+  if self.someSymbol == name:
     if self.value.isSome:
       let v = self.value.isSome
       discard self.nextSymbol()
