@@ -1,5 +1,6 @@
 import std/tables
 import std/options
+import std/strutils
 import regex
 
 const
@@ -102,7 +103,6 @@ proc start(self: var Parser, text: string): bool =
   return self.nextSymbol
 
 proc nextSymbol(self: var Parser): bool =
-  echo ">>> BEGIN nextSymbol PROC"
   var
     best: Option[RegexMatch] = none(RegexMatch)
     bestSymbol: Option[string] = none(string)
@@ -111,7 +111,6 @@ proc nextSymbol(self: var Parser): bool =
   self.value = none(RegexMatch)
 
   while true:
-    echo "BEGINNING OF ITERATION, DONE: " & $self.done
     if self.done:
       return false
     
@@ -124,24 +123,18 @@ proc nextSymbol(self: var Parser): bool =
       let matched: bool = self.text.find(rule, match)
 
       if matched:
-        echo "MATCHED WITH " & match.first(self.text).get("")
         # reducing match to the first primary capture, for length comparison
         if best.isNone or match.first(self.text).get("").len > best.get(RegexMatch()).first(self.text).get("").len:
           # great, better match found
-          echo "CURRENT BEST MATCH" & match.first(self.text).get("")
           best = some(match)
           bestSymbol = some(name)
     
     # put the results of the search into self
     if best.isSome:
-      echo "FOUND BEST MATCH..."
-      echo "TEXT BEFORE: " & self.text
       # cut off to end of match
-      self.text = self.text[best.get(RegexMatch()).first(self.text).get("").len..(self.text.len-1)]
+      self.text.delete(best.get.boundaries)
       self.done = self.text.len == 0
-      echo "TEXT AFTER: " & self.text
     else:
-      echo "NO BEST MATCH FOUND, EXITING..."
       # no best found
       self.done = true
       self.symbol = none(string)
@@ -151,7 +144,6 @@ proc nextSymbol(self: var Parser): bool =
     if bestSymbol.get("") != "SKIP":
       break
   
-  echo "SKIPPED..."
   # this will only happen if we got "SKIP"
   self.symbol = bestSymbol
   self.value = best
