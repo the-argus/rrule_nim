@@ -79,6 +79,33 @@ let
     byeaster: none(number)
   )
 
+proc parseOptions*(options: Options): ParsedOptions =
+  var parsed = ParsedOptions()
+  parsed.freq = options.freq
+  parsed.interval = options.interval
+  parsed.count = options.count
+  parsed.until = options.until
+  parsed.tzid = options.tzid
+  parsed.bynweekday = options.bynweekday
+  parsed.byeaster = options.byeaster
+
+  parsed.dtstart = options.dtstart.get
+  parsed.wkst = ord(options.wkst).number
+  parsed.bysetpos = options.bysetpos.get
+  parsed.bymonth = options.bymonth.get
+  parsed.bymonthday = options.bymonthday.get
+  parsed.bynmonthday = options.bynmonthday.get
+  parsed.byyearday = options.byyearday.get
+  parsed.byweekno = options.byweekno.get
+  let byweekday = options.byweekday.get
+  var weekdays: seq[number] = @[]
+  for day in byweekday:
+    weekdays.add(ord(day).number)
+  parsed.byweekday = weekdays
+  parsed.byhour = options.byhour.get
+  parsed.byminute = options.byminute.get
+  parsed.bysecond = options.bysecond.get
+
 # helper functions for parsing different symbols
 proc at(ttr: var Parser, options: var Options)
 proc f(ttr: var Parser, options: var Options)
@@ -89,7 +116,7 @@ proc decodeNTH(ttr: var Parser): Option[number]
 proc decodeWKD(ttr: var Parser): Option[string]
 proc toWeekDay(wkd: string): WeekDay
 
-proc fromText*(staticType: typedesc[Options], text: string): Option[Options] =
+proc fromText*(optionsType: typedesc[Options], text: string): Option[Options] =
   var
     ttr: Parser = initParser(rules=Language.english.tokens)
     options = defaultOptions
