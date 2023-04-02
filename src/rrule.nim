@@ -21,8 +21,17 @@ proc fromText*(rruleType: typedesc[RRule], text: string): RRule =
 
   RRule(origOptions: options, options: parsed)
 
-proc between*(after: DateTime, before: DateTime, mapFunc: (d: DateTime, l: number) -> bool = ((d: DateTime, l: number) => false)): seq[DateTime] =
+proc between*(self: RRule, after: DateTime, before: DateTime, mapFunc: (d: DateTime, l: number) -> bool = ((d: DateTime, l: number) => false)): seq[DateTime] =
   assert before < after
+
+  let
+    dtstart = self.options.dtstart
+    freq = self.options.freq
+    interval = self.options.interval
+    until = self.options.until
+    bysetpos = self.options.bysetpos
+
+  var count = self.options.count
 
   return @[]
 
